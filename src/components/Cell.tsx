@@ -16,8 +16,6 @@ const Container = styled.div<CellProps>`
       : props.fruit
       ? 'var(--color-fruit)'
       : 'transparent'};
-
-  border: 1px solid var(--color-white);
 `;
 
 const Cell: FC<CellProps> = (props): JSX.Element => {

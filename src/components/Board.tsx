@@ -9,8 +9,11 @@ const Container = styled.div`
   margin-left: 50%;
   margin-top: 30%;
   transform: translateY(-50%);
+  transform: translateX(-50%);
   display: grid;
   grid-template-columns: ${props => `repeat(${BOARD_SIZE}, 1fr)`};
+
+  border: 1px solid var(--color-white);
 
   @media (min-width: 500px) {
     width: 50vw;
@@ -23,8 +26,6 @@ const Container = styled.div`
     height: 40vw;
     margin-top: 5%;
   }
-
-  transform: translateX(-50%);
 `;
 
 let cells: { snake: boolean }[][] = [];
