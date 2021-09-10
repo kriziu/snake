@@ -2,6 +2,8 @@ import { FC, useEffect, useRef, useState } from 'react';
 import Board from './Board';
 import Pause from './Pause';
 import GlobalStyle from './GlobalStyles';
+import { BOARD_SIZE } from '../Constants';
+import styled from 'styled-components';
 
 enum DIRECTION {
   UP,
@@ -11,13 +13,29 @@ enum DIRECTION {
 }
 
 const initialSnakePos = [
-  [9, 5],
-  [9, 5],
-  [9, 5],
-  [9, 5],
+  [4, 4],
+  [4, 4],
+  [4, 4],
 ];
 
 const initialFruitPos = [3, 3];
+
+const Score = styled.h1`
+  font-weight: 500;
+  font-size: 2vw;
+  position: absolute;
+  top: 25vw;
+  width: 100%;
+  text-align: center;
+
+  @media (min-width: 500px) {
+    top: 11vw;
+  }
+
+  @media (min-width: 800px) {
+    top: 2vw;
+  }
+`;
 
 const App: FC = (): JSX.Element => {
   const [snake, setSnake] = useState(initialSnakePos);
@@ -25,6 +43,7 @@ const App: FC = (): JSX.Element => {
   const [pause, setPause] = useState(true);
   const [gameOver, setGameOver] = useState(false);
   const [direction, setDirection] = useState(DIRECTION.UP);
+  const score = useRef(0);
   const time = useRef<NodeJS.Timeout>();
 
   const makeNewSnake = () => {
@@ -48,8 +67,8 @@ const App: FC = (): JSX.Element => {
     }
 
     newSnake.forEach(pos => {
-      if (pos[0] === -1 || pos[0] === 10) setGameOver(true);
-      else if (pos[1] === -1 || pos[1] === 10) setGameOver(true);
+      if (pos[0] === -1 || pos[0] === BOARD_SIZE) setGameOver(true);
+      else if (pos[1] === -1 || pos[1] === BOARD_SIZE) setGameOver(true);
     });
 
     snake.forEach(ceil => {
@@ -64,12 +83,13 @@ const App: FC = (): JSX.Element => {
 
     if (newSnake[0][0] === fruit[0] && newSnake[0][1] === fruit[1]) {
       let fruitPos: number[] = [];
+      score.current++;
       let random = false;
 
       while (!random) {
         fruitPos = [
-          Math.floor(Math.random() * 10),
-          Math.floor(Math.random() * 10),
+          Math.floor(Math.random() * BOARD_SIZE),
+          Math.floor(Math.random() * BOARD_SIZE),
         ];
         random = true;
 
@@ -97,36 +117,36 @@ const App: FC = (): JSX.Element => {
       setDirection(DIRECTION.RIGHT);
   };
 
+  const setPauseFalse = () => {
+    setPause(false);
+  };
+
+  const clearGameOver = () => {
+    setGameOver(false);
+    score.current = 0;
+  };
+
   useEffect(() => {
     if (!pause && !gameOver)
       window.addEventListener('keydown', setDirectionListener);
 
-    if (pause)
-      window.addEventListener('keydown', e => {
-        setPause(false);
-      });
-
-    if (gameOver) {
-      window.addEventListener('keydown', e => {
-        setSnake(initialSnakePos);
-        setFruit(initialFruitPos);
-        setDirection(DIRECTION.UP);
-        setGameOver(false);
-      });
-    }
+    if (pause) window.addEventListener('keydown', setPauseFalse);
 
     makeNewSnake();
+
+    if (gameOver) {
+      setSnake(initialSnakePos);
+      setFruit(initialFruitPos);
+      setDirection(DIRECTION.UP);
+      window.addEventListener('keydown', clearGameOver);
+    }
 
     return () => {
       window.removeEventListener('keydown', setDirectionListener);
 
-      window.removeEventListener('keydown', e => {
-        setPause(false);
-      });
+      window.removeEventListener('keydown', setPauseFalse);
 
-      window.removeEventListener('keydown', e => {
-        setGameOver(false);
-      });
+      window.removeEventListener('keydown', clearGameOver);
     };
   }, [direction, pause, gameOver]);
 
@@ -139,12 +159,13 @@ const App: FC = (): JSX.Element => {
   return (
     <>
       <GlobalStyle />
+      <Score>Score: {score.current}</Score>
       <Board snakePosition={snake} fruitPosition={fruit} />
       {pause && <Pause message="Press any button to start" />}
       {gameOver && (
         <Pause
           message={`Game Over
-        Score: ${snake.length - 4}
+        Score: ${score.current}
       `}
         />
       )}

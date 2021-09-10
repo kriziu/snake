@@ -1,25 +1,40 @@
 import { FC } from 'react';
 import styled from 'styled-components';
+import { BOARD_SIZE } from '../Constants';
 import Cell from './Cell';
 
 const Container = styled.div`
-  width: 100rem;
-  height: 100rem;
+  width: 80vw;
+  height: 80vw;
   margin-left: 50%;
-  margin-top: 5%;
-  display: flex;
-  flex-wrap: wrap;
+  margin-top: 30%;
+  transform: translateY(-50%);
+  display: grid;
+  grid-template-columns: ${props => `repeat(${BOARD_SIZE}, 1fr)`};
+
+  @media (min-width: 500px) {
+    width: 50vw;
+    height: 50vw;
+    margin-top: 15%;
+  }
+
+  @media (min-width: 800px) {
+    width: 40vw;
+    height: 40vw;
+    margin-top: 5%;
+  }
 
   transform: translateX(-50%);
 `;
 
-let cells: { snake: boolean }[][] = [[], [], [], [], [], [], [], [], [], []];
+let cells: { snake: boolean }[][] = [];
+for (let i = 0; i < BOARD_SIZE; i++) {
+  cells.push([]);
 
-cells.forEach((e, i) => {
-  for (let j = 0; j < 10; j++) {
+  for (let j = 0; j < BOARD_SIZE; j++) {
     cells[i].push({ snake: false });
   }
-});
+}
 
 interface BoardProps {
   snakePosition: number[][];

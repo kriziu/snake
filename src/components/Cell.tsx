@@ -8,9 +8,6 @@ interface CellProps {
 }
 
 const Container = styled.div<CellProps>`
-  width: 10%;
-  height: 10%;
-
   background-color: ${props =>
     props.head
       ? 'var(--color-head)'
