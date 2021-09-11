@@ -23,18 +23,20 @@ const initialFruitPos = [3, 3];
 
 const Score = styled.h1`
   font-weight: 500;
-  font-size: 2vw;
+  font-size: 5vw;
   position: absolute;
-  top: 25vw;
+  top: 23vw;
   width: 100%;
   text-align: center;
 
   @media (min-width: 500px) {
-    top: 11vw;
+    top: 10vw;
+    font-size: 4vw;
   }
 
   @media (min-width: 800px) {
     top: 2vw;
+    font-size: 2vw;
   }
 `;
 
