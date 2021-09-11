@@ -1,9 +1,10 @@
-import { FC, useEffect, useRef, useState } from 'react';
+import { FC, RefCallback, useEffect, useRef, useState } from 'react';
 import Board from './Board';
 import Pause from './Pause';
 import GlobalStyle from './GlobalStyles';
 import { BOARD_SIZE } from '../Constants';
 import styled from 'styled-components';
+import { useSwipeable } from 'react-swipeable';
 
 enum DIRECTION {
   UP,
@@ -37,6 +38,8 @@ const Score = styled.h1`
   }
 `;
 
+const Input = styled.input``;
+
 const App: FC = (): JSX.Element => {
   const [snake, setSnake] = useState(initialSnakePos);
   const [fruit, setFruit] = useState(initialFruitPos);
@@ -45,6 +48,26 @@ const App: FC = (): JSX.Element => {
   const [direction, setDirection] = useState(DIRECTION.UP);
   const score = useRef(0);
   const time = useRef<NodeJS.Timeout>();
+
+  const { ref } = useSwipeable({
+    onSwiped: () => {
+      setPause(false);
+      setGameOver(false);
+    },
+    onSwipedUp: () =>
+      direction !== DIRECTION.DOWN && setDirection(DIRECTION.UP),
+    onSwipedDown: () =>
+      direction !== DIRECTION.UP && setDirection(DIRECTION.DOWN),
+    onSwipedLeft: () =>
+      direction !== DIRECTION.RIGHT && setDirection(DIRECTION.LEFT),
+    onSwipedRight: () =>
+      direction !== DIRECTION.LEFT && setDirection(DIRECTION.RIGHT),
+    preventDefaultTouchmoveEvent: true,
+  }) as { ref: RefCallback<Document> };
+
+  useEffect(() => {
+    ref(document);
+  });
 
   const makeNewSnake = () => {
     const newSnake: number[][] = [];
