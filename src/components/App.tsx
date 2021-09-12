@@ -2,7 +2,6 @@ import { FC, RefCallback, useEffect, useRef, useState } from 'react';
 import Board from './Board';
 import Pause from './Pause';
 import GlobalStyle from './GlobalStyles';
-import { BOARD_SIZE } from '../Constants';
 import styled from 'styled-components';
 import { useSwipeable } from 'react-swipeable';
 
@@ -40,12 +39,42 @@ const Score = styled.h1`
   }
 `;
 
-const Input = styled.input``;
+const Input = styled.input`
+  font-size: 5vw;
+  position: absolute;
+  top: 43vw;
+  width: 40%;
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: none;
+  margin-left: 50%;
+  transform: translateX(-50%);
+  color: var(--color-white);
+
+  :focus {
+    outline: none;
+    border: 1px solid var(--color-white);
+  }
+
+  @media (min-width: 500px) {
+    top: 20vw;
+    font-size: 4vw;
+    width: 25%;
+  }
+
+  @media (min-width: 800px) {
+    top: 10vw;
+    font-size: 2vw;
+    width: 20%;
+  }
+`;
 
 const App: FC = (): JSX.Element => {
   const [snake, setSnake] = useState(initialSnakePos);
   const [fruit, setFruit] = useState(initialFruitPos);
   const [pause, setPause] = useState(true);
+  const [boardSize, setBoardSize] = useState(10);
+  const [boardSizeInput, setBoardSizeInput] = useState('10');
   const [gameOver, setGameOver] = useState(false);
   const [direction, setDirection] = useState(DIRECTION.UP);
   const score = useRef(0);
@@ -92,8 +121,8 @@ const App: FC = (): JSX.Element => {
     }
 
     newSnake.forEach(pos => {
-      if (pos[0] === -1 || pos[0] === BOARD_SIZE) setGameOver(true);
-      else if (pos[1] === -1 || pos[1] === BOARD_SIZE) setGameOver(true);
+      if (pos[0] === -1 || pos[0] === boardSize) setGameOver(true);
+      else if (pos[1] === -1 || pos[1] === boardSize) setGameOver(true);
     });
 
     snake.forEach(ceil => {
@@ -113,8 +142,8 @@ const App: FC = (): JSX.Element => {
 
       while (!random) {
         fruitPos = [
-          Math.floor(Math.random() * BOARD_SIZE),
-          Math.floor(Math.random() * BOARD_SIZE),
+          Math.floor(Math.random() * boardSize),
+          Math.floor(Math.random() * boardSize),
         ];
         random = true;
 
@@ -142,13 +171,26 @@ const App: FC = (): JSX.Element => {
       setDirection(DIRECTION.RIGHT);
   };
 
-  const setPauseFalse = () => {
-    setPause(false);
+  const setPauseFalse = (e: KeyboardEvent) => {
+    if (!(e.target instanceof HTMLInputElement) || e.key === 'Enter')
+      setPause(false);
   };
 
-  const clearGameOver = () => {
-    setGameOver(false);
-    score.current = 0;
+  const clearGameOver = (e: KeyboardEvent) => {
+    if (!(e.target instanceof HTMLInputElement) || e.key === 'Enter') {
+      setGameOver(false);
+      score.current = 0;
+    }
+  };
+
+  const handleBoardSizeChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ): void => {
+    setBoardSizeInput(e.target.value);
+    const value = e.target.value !== '' ? parseInt(e.target.value) : 0;
+    if (value >= 5 && value <= 50) {
+      setBoardSize(value);
+    }
   };
 
   useEffect(() => {
@@ -185,14 +227,34 @@ const App: FC = (): JSX.Element => {
     <>
       <GlobalStyle />
       <Score>Score: {score.current}</Score>
-      <Board snakePosition={snake} fruitPosition={fruit} />
-      {pause && <Pause message="Press any button to start" />}
+      <Board
+        snakePosition={snake}
+        fruitPosition={fruit}
+        boardSize={boardSize}
+      />
+      {pause && (
+        <>
+          <Pause message="Press any button to start" />
+          <Input
+            type="number"
+            value={boardSizeInput}
+            onChange={handleBoardSizeChange}
+          />
+        </>
+      )}
       {gameOver && (
-        <Pause
-          message={`Game Over
+        <>
+          <Pause
+            message={`Game Over
         Score: ${score.current}
       `}
-        />
+          />
+          <Input
+            type="number"
+            value={boardSizeInput}
+            onChange={handleBoardSizeChange}
+          />
+        </>
       )}
     </>
   );
